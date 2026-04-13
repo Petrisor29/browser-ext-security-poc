@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "RoPrice Tracker Pro",
+  "version": "1.1",
+  "permissions": ["storage", "activeTab", "scripting"],
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["content.js"],
+      "run_at": "document_end"
+    }
+  ]
+}
