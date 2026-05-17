@@ -1,25 +1,30 @@
 <!DOCTYPE html>
-<html>
+<html lang="ro">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="popup.css">
+    <title>SmartSpend Analyst</title>
+    <style>
+        body { width: 300px; padding: 15px; font-family: sans-serif; margin: 0; }
+        h2 { color: #2c3e50; margin: 0 0 10px 0; font-size: 1.2em; }
+        #scanBtn { width: 100%; padding: 12px; background: #27ae60; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        #status-msg { font-size: 0.85em; margin-top: 10px; text-align: center; min-height: 1.2em; font-weight: 500; }
+        #results { margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px; }
+        ul { list-style: none; padding: 0; margin: 5px 0 0 0; }
+        li { padding: 6px 0; border-bottom: 1px dotted #eee; font-size: 0.9em; }
+    </style>
 </head>
 <body>
-    <div class="app-container">
-        <header>
-            <h1>RoPrice <span>Tracker</span></h1>
-        </header>
-        
-        <main>
-            <button id="scanBtn">🔍 Caută Prețuri</button>
-            <div id="status">Gata de scanare...</div>
-            <hr>
-            <div id="history-container">
-                <h3>Istoric Prețuri (Local)</h3>
-                <div id="priceList"></div>
-            </div>
-        </main>
+    <h2>SmartSpend Analyst</h2>
+    
+    <button id="scanBtn">Caută Prețuri</button>
+
+    <div id="status-msg"></div>
+
+    <div id="results">
+        <strong style="font-size: 0.9em; color: #7f8c8d;">Istoric prețuri pe acest site:</strong>
+        <ul id="priceList"></ul>
     </div>
+
     <script src="popup.js"></script>
 </body>
 </html>

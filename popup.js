@@ -1,48 +1,59 @@
-document.getElementById('scanBtn').addEventListener('click', async () => {
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    
-    // Trimitem mesaj către content.js
-    chrome.tabs.sendMessage(tab.id, { action: "get_prices" }, (response) => {
-        if (response && response.prices) {
-            saveToStorage(new URL(tab.url).hostname, response.prices);
-            displayPrices(response.prices);
-        }
-    });
-});
+document.addEventListener('DOMContentLoaded', async () => {
+    const scanBtn = document.getElementById('scanBtn');
+    const statusMsg = document.getElementById('status-msg');
+    const priceList = document.getElementById('priceList');
 
-function saveToStorage(domain, prices) {
-    const data = {
-        timestamp: new Date().toLocaleString(),
-        prices: prices
+    // Verificăm dacă elementele există în HTML pentru a evita erorile
+    if (!scanBtn || !statusMsg || !priceList) return;
+
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (!tab || !tab.url) return;
+
+    const domain = new URL(tab.url).hostname;
+    const storageKey = `prices_${domain}`;
+
+    const loadPrices = () => {
+        chrome.storage.local.get([storageKey], (result) => {
+            priceList.innerHTML = ''; 
+
+            if (result[storageKey] && result[storageKey].length > 0) {
+                result[storageKey].forEach(item => {
+                    const li = document.createElement('li');
+                    li.style.padding = "5px 0";
+                    li.style.fontSize = "0.85em";
+                    li.style.borderBottom = "1px solid #eee";
+                    li.innerHTML = `<span>${item.price} Lei</span> <small style="color:gray; float:right;">${new Date(item.timestamp).toLocaleTimeString('ro-RO')}</small>`;
+                    priceList.appendChild(li);
+                });
+            } else {
+                priceList.innerHTML = '<li style="color:gray; font-size:0.8em;">Nicio scanare recentă.</li>';
+            }
+        });
     };
 
-    chrome.storage.local.get([domain], (result) => {
-        let history = result[domain] || [];
-        history.push(data);
-        chrome.storage.local.set({ [domain]: history });
-    });
-    
-    function displayPrices(prices) {
-    const list = document.getElementById('priceList');
-    const status = document.getElementById('status');
-    
-    if (prices.length === 0) {
-        status.innerText = "Nu am găsit prețuri pe această pagină.";
-        return;
-    }
+    // Încărcăm datele salvate anterior la deschiderea popup-ului
+    loadPrices();
 
-    status.innerText = `Am găsit ${prices.length} prețuri.`;
-    
-    // Creăm un card pentru scanarea curentă
-    const entryDiv = document.createElement('div');
-    entryDiv.className = 'price-entry';
-    
-    const time = new Date().toLocaleTimeString();
-    entryDiv.innerHTML = `
-        <small>Scanat la: ${time}</small>
-        <strong>${prices.join(' | ')}</strong>
-    `;
-    
-    list.prepend(entryDiv); // Punem cele mai noi prețuri sus
-}
-}
+    // Logica butonului
+    scanBtn.addEventListener('click', () => {
+        // Resetăm mesajul și oferim feedback vizual
+        statusMsg.textContent = "Scanare în curs...";
+        statusMsg.style.color = "#007bff";
+
+        chrome.tabs.sendMessage(tab.id, { action: "manual_scan" }, (response) => {
+            if (chrome.runtime.lastError) {
+                statusMsg.textContent = "Eroare: Refresh la pagină!";
+                statusMsg.style.color = "#dc3545";
+                console.error(chrome.runtime.lastError.message);
+                return;
+            }
+
+            // Simulăm un mic delay pentru procesare (UX mai bun)
+            setTimeout(() => {
+                statusMsg.textContent = "Datele sunt la zi.";
+                statusMsg.style.color = "#28a745";
+                loadPrices(); 
+            }, 800);
+        });
+    });
+});
