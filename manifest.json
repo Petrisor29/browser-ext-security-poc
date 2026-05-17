@@ -1,16 +1,28 @@
 {
   "manifest_version": 3,
-  "name": "RoPrice Tracker Pro",
-  "version": "1.1",
-  "permissions": ["storage", "activeTab", "scripting"],
+  "name": "SmartSpend Analyst Pro",
+  "description": "Monitorizează istoricul prețurilor și economisește inteligent.",
+  "version": "1.0",
+  "permissions": ["storage", "activeTab", "scripting", "notifications"],
+
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
   "action": {
     "default_popup": "popup.html"
   },
-  "content_scripts": [
-    {
-      "matches": ["http://*/*", "https://*/*"],
-      "js": ["content.js"],
-      "run_at": "document_end"
+"host_permissions": ["<all_urls>"],
+"content_scripts": [{
+  "matches": ["<all_urls>"],
+  "js": ["content.js"]
+},
+{
+      "matches": [
+        "*://inf.ucv.ro/examene.aspx*"
+      ],
+      "js": ["content_ucv.js"],
+      "run_at": "document_idle"
     }
   ]
 }
